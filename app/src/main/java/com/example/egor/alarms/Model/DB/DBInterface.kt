@@ -7,5 +7,5 @@ interface DBInterface {
     fun changeRoom(room: Room)
     fun getRooms(): List<Room>
     fun updateRooms(rooms: List<Room>)
-    fun getRoom(id: Int): Room
+    fun getRoom(id: Int): Room?
 }

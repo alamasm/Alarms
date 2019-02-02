@@ -3,10 +3,11 @@ package com.example.egor.alarms.View.ActivitiesInterfaces
 import Server.Room
 
 
-interface MainActivityInterface : LoadingActivity, Activity {
-    fun startSearchRoomActivity()
+interface MainActivityInterface : LoadingActivityInterface, ActivityInterface {
     fun startLoginActivity()
     fun startRegisterActivity()
-    fun startRoomViewActivity(room: Room? = null, canChange: Boolean = false)
+    fun startRoomViewActivity(canChange: Boolean = false)
     fun updateRooms(rooms: List<Room>)
+    fun getSearchText(): String
+    fun showCreateRoomDialog()
 }

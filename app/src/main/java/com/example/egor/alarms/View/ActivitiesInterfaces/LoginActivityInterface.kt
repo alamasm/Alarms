@@ -1,6 +1,6 @@
 package com.example.egor.alarms.View.ActivitiesInterfaces
 
-interface LoginActivity : LoadingActivity, Activity {
+interface LoginActivityInterface : LoadingActivityInterface, ActivityInterface {
     fun getUsername(): String
     fun getPassword(): String
     fun onLoginError(error: String)

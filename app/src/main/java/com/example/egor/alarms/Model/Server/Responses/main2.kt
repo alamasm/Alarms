@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.io.FileWriter
 
+/*
 fun main(args: Array<String>) {
     val changeRoomFile = FileWriter("changeRoomResponse.json")
     val createRoomFile = FileWriter("createRoomResponse.json")
@@ -28,15 +29,15 @@ fun main(args: Array<String>) {
     val room1 = Room(0, "room1",1, listOf(Pair(user0, "add me")), listOf(user0, user1), listOf(alarm0, alarm1), true)
 
     val changeRoomResponse = ChangeRoomResponse(roomChanged = true)
-    val createRoomResponse = CreateRoomResponse(roomID = 0, roomCreated = true)
+    val createRoomResponse = CreateRoomResponse(roomId = 0, roomCreated = true)
     val getRoomsResponse = GetRoomsResponse(rooms = listOf( room1))
-    val loginResponse = LoginResponse(logged = true, userID = 0)
-    val registerResponse = RegisterResponse(userID = 0, registred = true)
+    val loginResponse = LoginResponse(logged = true, userId = 0)
+    val registerResponse = RegisterResponse(userId = 0, registred = true)
     val searchRoomResponse = SearchRoomResponse(rooms = listOf(room1))
     val sendRequestToRoomResponse = SendRequestToRoomResponse(requestSent = true)
     val turnOffAlarmResponse = TurnOffAlarmResponse(turnedOff = true)
-    val isAllUsersTurnedOffAlarmResponse = AllUsersTurnedOffAlarmResponse(allUsersTurnedOff = true, roomID = 1)
-    val isRequestToRoomAcceptedResponse = IsRequestToRoomAcceptedResponse(accepted = true, roomID = 1)
+    val isAllUsersTurnedOffAlarmResponse = AllUsersTurnedOffAlarmResponse(allUsersTurnedOff = true, roomId = 1)
+    val isRequestToRoomAcceptedResponse = IsRequestToRoomAcceptedResponse(accepted = true, roomId = 1)
     gsonForRequest.toJson(changeRoomResponse, changeRoomFile)
     gsonForRequest.toJson(createRoomResponse, createRoomFile)
     gsonForRequest.toJson(getRoomsResponse, getRoomsFile)
@@ -61,4 +62,4 @@ fun main(args: Array<String>) {
 
 private val gsonForRequest: Gson by lazy {
     GsonBuilder().registerTypeAdapter(RequestInterface::class.java, RequestAdapter()).create()
-}
+}*/

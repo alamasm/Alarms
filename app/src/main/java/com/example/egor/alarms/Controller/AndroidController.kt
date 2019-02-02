@@ -1,203 +1,194 @@
 package com.example.egor.alarms.Controller
 
 import Server.Room
-import Server.ServerInterface
-import Server.requests.main
 import com.example.egor.alarms.Model.Cryptography.CryptInterface
-import com.example.egor.alarms.Model.DB.DBInterface
+import com.example.egor.alarms.Model.ModelInterface
+import com.example.egor.alarms.Model.Server.Alarm
 import com.example.egor.alarms.View.ActivitiesInterfaces.*
-import com.example.egor.alarms.View.MainActivity
-import com.example.pektu.lifecounter.Model.Preferences.Preferences
-import kotlinx.coroutines.*;
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import java.net.ConnectException
 
 class AndroidController(
-    private val db: DBInterface, private val prefs: Preferences, private val server: ServerInterface,
-    private val crypter: CryptInterface, private val mainActivity: MainActivityInterface
+    private val model: ModelInterface,
+    private val crypter: CryptInterface,
+    private val mainActivity: MainActivityInterface
 ) : ControllerInterface {
-    var currentActivity: Activity = mainActivity
-    var currentActivityType = ActivityTypes.main
-    var userID = 0
-    lateinit var username: String
-    lateinit var passwordHash: String
 
-    override fun onMainActivityLoaded(mainActivityInterface: MainActivityInterface) {
-        if (!prefs.getBoolean(Preferences.LOGGED_TAG)) mainActivityInterface.startLoginActivity()
+    private var currentRoomId: Int = 0
+
+    override fun onMainActivityStarted(mainActivity: MainActivityInterface) {
+        if (!model.logged()) mainActivity.startLoginActivity()
         else {
+            print("LOGGED: " + model.logged())
+            mainActivity.startLoading()
             launch {
-                userID = prefs.getInt(Preferences.USER_ID_TAG)
-                passwordHash = prefs.getString(Preferences.PASSWORD_HASH_TAG)
-                username = prefs.getString(Preferences.USERNAME_TAG)
-            }
-        }
-    }
-
-    override fun onLoginActivityStarted(loginActivity: LoginActivity) {
-        currentActivity = loginActivity
-        currentActivityType = ActivityTypes.login
-    }
-
-    override suspend fun onLoginResult(logged: Boolean, userID: Int, username: String, passwordHash: String) {
-        if (currentActivityType == ActivityTypes.login) {
-            when (logged) {
-                true -> {
-                    val save = async {
-                        prefs.saveInt(Preferences.USER_ID_TAG, userID)
-                        prefs.saveString(Preferences.USERNAME_TAG, username)
-                        prefs.saveString(Preferences.PASSWORD_HASH_TAG, passwordHash)
-                        prefs.saveBoolean(Preferences.LOGGED_TAG, true)
-                    }
-                    launch(UI) {
-                        (currentActivity as LoginActivity).stopLoading()
-                        (currentActivity as LoginActivity).onLoginOk()
-                    }
-                    save.await()
-                }
-                false -> {
-                    launch(UI) {
-                        (currentActivity as LoginActivity).stopLoading()
-                        (currentActivity as LoginActivity).onLoginError("")
-                    }
+                val rooms = model.getRooms(model.getUserID())
+                launch(UI) {
+                    mainActivity.updateRooms(rooms)
+                    mainActivity.stopLoading()
                 }
             }
         }
     }
 
-    override suspend fun onRegisterResult(registred: Boolean, userID: Int, username: String, passwordHash: String) {
-        if (currentActivityType == ActivityTypes.login) {
-            when (registred) {
-                true -> {
-                    val save = async {
-                        prefs.saveInt(Preferences.USER_ID_TAG, userID)
-                        prefs.saveString(Preferences.USERNAME_TAG, username)
-                        prefs.saveString(Preferences.PASSWORD_HASH_TAG, passwordHash)
-                        prefs.saveBoolean(Preferences.LOGGED_TAG, true)
-                    }
-                    launch(UI) {
-                        (currentActivity as LoginActivity).stopLoading()
-                        (currentActivity as LoginActivity).onRegisterOK()
-                    }
-                    save.await()
-                }
-                false -> {
-                    launch(UI) {
-                        (currentActivity as LoginActivity).stopLoading()
-                        (currentActivity as LoginActivity).onRegisterError("")
-                    }
-                }
+    override fun onMainActivityRoomButtonClicked(roomID: Int) {
+        currentRoomId = roomID
+        mainActivity.startRoomViewActivity()
+    }
+
+    override fun onMainActivityFinished() {
+
+    }
+
+    override fun onMainActivitySearchTextChanged() {
+        val searchText = mainActivity.getSearchText()
+        mainActivity.startLoading()
+        launch {
+            val rooms = model.searchRoom(searchText)
+            launch(UI) {
+                mainActivity.stopLoading()
+                mainActivity.updateRooms(rooms)
             }
         }
     }
 
-    override suspend fun onCreateRoomResult(created: Boolean, roomID: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override suspend fun onChangeRoomResult(changed: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override suspend fun onGetRoomsResult(rooms: List<Room>) {
-        val save = async { db.updateRooms(rooms) }
-        launch(UI) {
-            mainActivity.updateRooms(rooms)
-        }
-        save.await()
-    }
-
-    override suspend fun onSendRequestToRoomResult(requestSent: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override suspend fun onTurnOffAlarmResult(turnedOff: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override suspend fun onAllUserTurnedAlarmOffResult(allUsersOffAlarm: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override suspend fun onGetRoomResult(room: Room) {
-        val save = async { db.changeRoom(room) }
-        launch(UI) { mainActivity.startRoomViewActivity(room) }
-        save.await()
-    }
-
-    override suspend fun onSearchResult(rooms: List<Room>) {
-        if (currentActivityType == ActivityTypes.searchRoom) {
-            launch(UI) { (currentActivity as SearchRoomActivity).updateRooms(rooms) }
+    override fun onMainActivitySearchClosed() {
+        mainActivity.startLoading()
+        launch {
+            val rooms = model.getRooms(model.getUserID())
+            launch(UI) {
+                mainActivity.stopLoading()
+                mainActivity.updateRooms(rooms)
+            }
         }
     }
 
-    override fun onLoginClicked(loginActivity: LoginActivity) {
-        val username = loginActivity.getUsername()
-        val password = loginActivity.getPassword()
-        val controller = this
+    override fun onMainActivityCreateRoomButtonClicked() {
+        mainActivity.showCreateRoomDialog()
+    }
+
+    override fun onMainActivityCreateRoomOKButtonClicked(roomName: String) {
+        mainActivity.startLoading()
+        launch {
+            model.createRoom(Room(-1, roomName, model.getUserID(), emptyList(), emptyList(), emptyList()))
+            launch(UI) {
+                mainActivity.stopLoading()
+            }
+        }
+    }
+
+    override fun onRoomViewActivityStarted(roomViewActivity: RoomViewActivityInterface) {
+        roomViewActivity.startLoading()
+        launch {
+            val currentRoom = model.getRoom(currentRoomId)
+            launch(UI) {
+                if (currentRoom.adminId == model.getUserID()) roomViewActivity.setAdmin(true)
+                roomViewActivity.setRoom(currentRoom)
+                roomViewActivity.stopLoading()
+            }
+        }
+    }
+
+    override fun onRoomViewActivitySaveRoomClicked(roomViewActivity: RoomViewActivityInterface) {
+        launch { model.createRoom(roomViewActivity.getRoom()) }
+        roomViewActivity.finish()
+    }
+
+    override fun onRoomViewActivitySendRequestClicked(roomViewActivity: RoomViewActivityInterface) {
+        roomViewActivity.startLoading()
+        launch {
+            val roomID = roomViewActivity.getRoom().id
+            val res = model.sendRequestToRoom(roomID)
+            launch(UI) {
+                roomViewActivity.stopLoading()
+                roomViewActivity.requestToRoomSent(res)
+            }
+        }
+    }
+
+    override fun onRoomViewActivityAddButtonClicked(roomViewActivity: RoomViewActivityInterface) {
+        when (roomViewActivity.getPageId()) {
+            0 -> roomViewActivity.showAddAlarmDialog()
+        }
+    }
+
+    override fun onRoomViewAddAlarmOKClicked(roomViewActivity: RoomViewActivityInterface, alarm: Alarm) {
+        roomViewActivity.startLoading()
+        launch {
+            var room = roomViewActivity.getRoom()
+            val alarms: MutableList<Alarm>
+            alarms = if (room.alarms == null) arrayListOf()
+            else room.alarms.toMutableList()
+            alarms.add(alarm)
+            room.alarms = alarms
+            room.users = emptyList()
+            room.unapprovedUsers = emptyList()
+            model.changeRoom(room)
+            room = model.getRoom(room.id)//TODO
+            launch(UI) {
+                roomViewActivity.setRoom(room)
+                roomViewActivity.stopLoading()
+            }
+        }
+    }
+
+    override fun onRoomViewFinished() {
+
+    }
+
+    override fun onLoginActivityStarted(loginActivity: LoginActivityInterface) {
+
+    }
+
+    override fun onLoginActivityLoginClicked(loginActivity: LoginActivityInterface) {
         loginActivity.startLoading()
         launch {
-            val passwordHash = crypter.getHash(password)
-            server.login(controller, username, passwordHash)
+            val passwordHash = crypter.getHash(loginActivity.getPassword())
+            try {
+                val res = model.login(loginActivity.getUsername(), passwordHash)
+                launch(UI) {
+                    loginActivity.stopLoading()
+                    if (res == -1) loginActivity.onLoginError("")
+                    else loginActivity.onLoginOk()
+                }
+            } catch (e: ConnectException) {
+                launch(UI) {
+                    loginActivity.stopLoading()
+                    loginActivity.onInternetError()
+                }
+            }
         }
     }
 
-    override fun onRegisterClicked(loginActivity: LoginActivity) {
-        val username = loginActivity.getUsername()
-        val password = loginActivity.getPassword()
-        val controller = this
+    override fun onLoginActivityRegisterClicked(loginActivity: LoginActivityInterface) {
+        loginActivity.startLoading()
         launch {
-            val passwordHash = crypter.getHash(password)
-            server.register(controller, username, passwordHash)
-        }
-    }
+            val passwordHash = crypter.getHash(loginActivity.getPassword())
+            try {
+                val res = model.register(loginActivity.getUsername(), passwordHash)
+                launch(UI) {
+                    loginActivity.stopLoading()
+                    if (res == -1) loginActivity.onLoginError("")
+                    else loginActivity.onLoginOk()
+                }
+            } catch (e: ConnectException) {
+                launch(UI) {
+                    loginActivity.stopLoading()
+                    loginActivity.onInternetError()
+                }
 
-    override fun onMainActivityClose(mainActivityInterface: MainActivityInterface) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onMainActivityRoomClicked(mainActivityInterface: MainActivityInterface, roomID: Int) {
-        val controller = this
-        launch { server.getRoom(controller, userID, passwordHash, roomID) }
-    }
-
-    override fun onMainActivitySearchButtonClicked(mainActivityInterface: MainActivityInterface) {
-        mainActivity.startSearchRoomActivity()
-    }
-
-    override fun onMainActivityAddButtonClicked(mainActivityInterface: MainActivityInterface) {
-        mainActivity.startRoomViewActivity(canChange = true)
-    }
-
-    override fun onSearchActivityTextChanged(searchRoomActivity: SearchRoomActivity, text: String) {
-        val controller = this
-        launch {
-            server.searchRoom(controller, userID, passwordHash, text)
+            }
         }
     }
 
     override fun onLoginActivityFinished() {
-        currentActivity = mainActivity
-        currentActivityType = ActivityTypes.main
+
     }
 
-    override fun onSearchRoomActivityStarted(searchRoomActivity: SearchRoomActivity) {
-        currentActivity = searchRoomActivity
-        currentActivityType = ActivityTypes.searchRoom
-    }
-
-    override fun onSearchRoomActivityFinished() {
-        currentActivity = mainActivity
-        currentActivityType = ActivityTypes.main
-    }
-
-    override fun onRoomViewActivityStarted(roomViewActivity: RoomViewActivity) {
-        currentActivity = roomViewActivity
-        currentActivityType = ActivityTypes.roomView
-    }
-
-    override fun onRoomViewActivityFinished() {
-        currentActivity = mainActivity
-        currentActivityType = ActivityTypes.main
+    override fun onInternetError() {
+        launch(UI) {
+            mainActivity.onInternetError()
+        }
     }
 }

@@ -9,9 +9,9 @@ class RequestTypes {
         const val GET_ROOMS = 4
         const val SEND_REQUEST_TO_ROOM = 5
         const val TURN_OFF_ALARM = 6
-        const val SEARCH_ROOM = 8
-        const val ALL_USERS_TURNED_OFF_ALARM = 9
-        const val IS_REQUEST_IN_ROOM_ACCEPTED = 10
-        const val GET_ROOM = 11
+        const val SEARCH_ROOM = 7
+        const val ALL_USERS_TURNED_OFF_ALARM = 8
+        const val IS_REQUEST_IN_ROOM_ACCEPTED = 9
+        const val GET_ROOM = 10
     }
 }

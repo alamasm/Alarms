@@ -5,27 +5,35 @@ import Server.SimpleTime
 import Server.User
 import android.content.ContentValues
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 import com.example.egor.alarms.Model.Server.Alarm
 
-class AndroidDB(private val db: SQLiteDatabase): DBInterface {
+class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
     override fun saveRoom(room: Room) {
         for (user in room.users) saveUser(user)
         for (user in room.unapprovedUsers) saveUser(user)
         for (alarm in room.alarms) saveAlarm(alarm)
-        db.insert(DBHelper.ROOMS_TABLE_NAME, null, getContentValues(room))
+
+        helper.writableDatabase.insert(DBHelper.ROOMS_TABLE_NAME, null, getContentValues(room))
     }
 
     override fun changeRoom(room: Room) {
         for (user in room.users) updateUser(user)
         for (user in room.unapprovedUsers) updateUser(user)
         for (alarm in room.alarms) updateAlarm(alarm)
-        db.update(DBHelper.ROOMS_TABLE_NAME, getContentValues(room), "id = ?", listOf(room.id.toString()).toTypedArray())
+        helper.writableDatabase.update(
+            DBHelper.ROOMS_TABLE_NAME,
+            getContentValues(room),
+            "id = ?",
+            listOf(room.id.toString()).toTypedArray()
+        )
     }
 
     override fun getRooms(): List<Room> {
-        val cursor = db.rawQuery("SELECT * FROM ${DBHelper.ROOMS_TABLE_NAME}", null)
-        cursor.moveToFirst()
+        val cursor = helper.readableDatabase.rawQuery("SELECT * FROM ${DBHelper.ROOMS_TABLE_NAME}", null)
+        if (!cursor.moveToFirst()) {
+            return emptyList()
+        }
         val rooms =  ArrayList<Room>()
         do {
             rooms.add(getRoom(cursor))
@@ -40,7 +48,7 @@ class AndroidDB(private val db: SQLiteDatabase): DBInterface {
         val unapprovedUsersIdsString = cursor.getString(cursor.getColumnIndex("unapproved_users"))
         val alarmsIdsString = cursor.getString(cursor.getColumnIndex("alarms"))
         val adminId = cursor.getInt(cursor.getColumnIndex("admin_id"))
-        val acceptedUser = cursor.getInt(cursor.getColumnIndex("accepted_user")) == 1
+        //val acceptedUser = cursor.getInt(cursor.getColumnIndex("accepted_user")) == 1
 
         val usersIds = getIdsListFromString(usersIdsString)
         val unapprovedUsersIds = getIdsListFromString(unapprovedUsersIdsString)
@@ -52,7 +60,7 @@ class AndroidDB(private val db: SQLiteDatabase): DBInterface {
         for (userId in unapprovedUsersIds) unapprovedUsers.add(getUnapprovedUser(userId))
         val alarms = ArrayList<Alarm>()
         for (alarmId in alarmsIds) alarms.add(getAlarm(alarmId))
-        return Room(id, name,  adminId, unapprovedUsers, users, alarms, acceptedUser)
+        return Room(id, name, adminId, unapprovedUsers, users, alarms)
     }
 
     private fun getIdsListFromString(idsString: String): List<Int> {
@@ -64,49 +72,60 @@ class AndroidDB(private val db: SQLiteDatabase): DBInterface {
         for (room in rooms) changeRoom(room)
     }
 
-    override fun getRoom(id: Int): Room {
-        val cursor = db.rawQuery("SELECT * FROM ${DBHelper.ROOMS_TABLE_NAME} WHERE id = $id", null)
-        cursor.moveToFirst()
-        return getRoom(cursor)
+    override fun getRoom(id: Int): Room? {
+        val cursor = helper.readableDatabase.rawQuery("SELECT * FROM ${DBHelper.ROOMS_TABLE_NAME} WHERE id = $id", null)
+        return if (cursor.moveToFirst()) {
+            getRoom(cursor)
+        } else null
     }
 
     private fun saveUser(user: User) {
-        db.insert(DBHelper.USERS_TABLE_NAME, null, getContentValues(user))
+        helper.writableDatabase.insert(DBHelper.USERS_TABLE_NAME, null, getContentValues(user))
     }
 
     private fun updateUser(user: User) {
-        db.update(DBHelper.USERS_TABLE_NAME, getContentValues(user), "id = ?", listOf(user.userId.toString()).toTypedArray())
+        helper.writableDatabase.update(
+            DBHelper.USERS_TABLE_NAME,
+            getContentValues(user),
+            "id = ?",
+            listOf(user.userId.toString()).toTypedArray()
+        )
     }
 
     private fun getUser(id: Int): User {
-        val cursor = db.rawQuery("SELECT * FROM ${DBHelper.USERS_TABLE_NAME} WHERE id = $id", null)
+        val cursor = helper.readableDatabase.rawQuery("SELECT * FROM ${DBHelper.USERS_TABLE_NAME} WHERE id = $id", null)
         return getUser(cursor)
     }
 
     private fun getUser(cursor: Cursor): User {
         cursor.moveToFirst()
         val id = cursor.getInt(cursor.getColumnIndex("id"))
-        val username = cursor.getString(cursor.getColumnIndex("username"))
+        val username = cursor.getString(cursor.getColumnIndex("userName"))
         return User(username, id)
     }
 
     private fun getContentValues(user: User): ContentValues {
         val cv = ContentValues()
         cv.put("id", user.userId)
-        cv.put("username", user.username)
+        cv.put("userName", user.username)
         return cv
     }
 
     private fun saveUser(user: Pair<User, String>) {
-        db.insert(DBHelper.USERS_TABLE_NAME, null, getContentValues(user))
+        helper.writableDatabase.insert(DBHelper.USERS_TABLE_NAME, null, getContentValues(user))
     }
 
     private fun updateUser(user: Pair<User, String>) {
-        db.update(DBHelper.USERS_TABLE_NAME, getContentValues(user), "id = ?", listOf(user.first.userId.toString()).toTypedArray())
+        helper.writableDatabase.update(
+            DBHelper.USERS_TABLE_NAME,
+            getContentValues(user),
+            "id = ?",
+            listOf(user.first.userId.toString()).toTypedArray()
+        )
     }
 
     private fun getUnapprovedUser(id: Int): Pair<User, String> {
-        val cursor = db.rawQuery("SELECT * FROM ${DBHelper.USERS_TABLE_NAME} WHERE id = $id", null)
+        val cursor = helper.readableDatabase.rawQuery("SELECT * FROM ${DBHelper.USERS_TABLE_NAME} WHERE id = $id", null)
         return getUnapprovedUser(cursor)
     }
 
@@ -124,15 +143,21 @@ class AndroidDB(private val db: SQLiteDatabase): DBInterface {
     }
 
     private fun saveAlarm(alarm: Alarm) {
-        db.insert(DBHelper.ALARMS_TABLE_NAME, null, getContentValues(alarm))
+        helper.writableDatabase.insert(DBHelper.ALARMS_TABLE_NAME, null, getContentValues(alarm))
     }
 
     private fun updateAlarm(alarm: Alarm) {
-        db.update(DBHelper.ALARMS_TABLE_NAME, getContentValues(alarm), "id = ?", listOf(alarm.id.toString()).toTypedArray())
+        helper.writableDatabase.update(
+            DBHelper.ALARMS_TABLE_NAME,
+            getContentValues(alarm),
+            "id = ?",
+            listOf(alarm.id.toString()).toTypedArray()
+        )
     }
 
     private fun getAlarm(id: Int): Alarm {
-        val cursor = db.rawQuery("SELECT * FROM ${DBHelper.ALARMS_TABLE_NAME} WHERE id = $id", null)
+        val cursor =
+            helper.readableDatabase.rawQuery("SELECT * FROM ${DBHelper.ALARMS_TABLE_NAME} WHERE id = $id", null)
         return getAlarm(cursor)
     }
 
@@ -142,15 +167,15 @@ class AndroidDB(private val db: SQLiteDatabase): DBInterface {
         val name = cursor.getString(cursor.getColumnIndex("name"))
         val timeHours = cursor.getInt(cursor.getColumnIndex("time_hours"))
         val timeMinutes = cursor.getInt(cursor.getColumnIndex("time_minutes"))
-        val repeatString = cursor.getString(cursor.getColumnIndex("repeat"))
-        return Alarm(id, name, SimpleTime(timeHours, timeMinutes), repeatString)
+        val repeatString = cursor.getString(cursor.getColumnIndex("days"))
+        return Alarm(id, name, arrayOf(timeHours, timeMinutes), repeatString)
     }
     private fun getContentValues(alarm: Alarm): ContentValues {
         val cv = ContentValues()
         cv.put("id", alarm.id)
         cv.put("name", alarm.name)
-        cv.put("time_hours", alarm.time.hours)
-        cv.put("time_minutes", alarm.time.minutes)
+        cv.put("time_hours", alarm.time[0])
+        cv.put("time_minutes", alarm.time[1])
         return cv
     }
 
@@ -166,17 +191,16 @@ class AndroidDB(private val db: SQLiteDatabase): DBInterface {
         val alarmsIdsString = getIDsAsString(alarmsIds)
         val cv = ContentValues()
         cv.put("id", room.id)
-        cv.put("admin_id", room.adminID)
+        cv.put("admin_id", room.adminId)
         cv.put("users", userIdsString)
         cv.put("unapproved_users", unapprovedUsersIdsString)
         cv.put("alarms", alarmsIdsString)
-        cv.put("accepted_user", if (room.acceptedUser) 1 else 0)
         return cv
     }
 
     private fun getIDsAsString(ids: List<Int>): String {
         val res = StringBuilder()
-        for (i in 1..(ids.size)) {
+        for (i in 0..(ids.size - 1)) {
             if (i != ids.size - 1) res.append("${ids[i]};")
             else res.append("${ids[i]}")
         }

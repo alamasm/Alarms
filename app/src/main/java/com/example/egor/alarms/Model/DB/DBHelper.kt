@@ -17,10 +17,10 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DB_NAME, null, CURRE
                 "name TEXT, admin_id INTEGER, users TEXT, unapproved_users TEXT, alarms TEXT, accepted_user INTEGER );"
 
         private const val CREATE_ALARMS_TABLE_SQL = "CREATE TABLE $ALARMS_TABLE_NAME ( id INTEGER PRIMARY KEY, " +
-                "name TEXT, time_hours INTEGER, time_minutes INTEGER, repeat TEXT );"
+                "name TEXT, time_hours INTEGER, time_minutes INTEGER, days TEXT );"
 
         private const val CREATE_USERS_TABLE_SQL = "CREATE TABLE $USERS_TABLE_NAME ( id INTEGER PRIMARY KEY, " +
-                "username TEXT, unapproved_text TEXT );"
+                "userName TEXT, unapproved_text TEXT );"
     }
 
 

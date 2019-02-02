@@ -1,114 +1,119 @@
+package com.example.egor.alarms.Model.Server
+
 import Server.Responses.*
 import Server.Room
 import Server.ServerInterface
 import Server.requests.*
-import com.example.egor.alarms.Controller.ControllerInterface
 import com.example.egor.alarms.Model.Server.Responses.GetRoomResponse
 import com.example.egor.alarms.Model.Server.Responses.ResponseAdapter
 import com.example.egor.alarms.Model.Server.requests.GetRoomReqest
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.json.JSONObject
 import khttp.*
-import khttp.responses.Response
+import java.net.ConnectException
+import java.net.SocketException
+import java.net.SocketTimeoutException
 
 class JSonServer: ServerInterface {
-    override suspend fun register(controller: ControllerInterface, username: String, passwordHash: String) {
+    override suspend fun register(username: String, passwordHash: String): RegisterResponse? {
         val registerRequest = RegisterRequest("", RequestTypes.REGISTER, -1, passwordHash, username)
-        val responseJson = (sendPost(registerRequest) as RegisterResponse)
-        controller.onRegisterResult(responseJson.registred, responseJson.userID, username, passwordHash)
+        val responseJson = (sendPost(registerRequest) as RegisterResponse?)
+        return responseJson
     }
 
-    override suspend fun login(controller: ControllerInterface, username: String, passwordHash: String) {
+    override suspend fun login(username: String, passwordHash: String): LoginResponse? {
         val loginRequest = LoginRequest("", RequestTypes.LOGIN, -1, passwordHash, username)
-        val responseJson = sendPost(loginRequest) as LoginResponse
-        controller.onLoginResult(responseJson.logged, responseJson.userID, username, passwordHash)
+        val responseJson = sendPost(loginRequest) as LoginResponse?
+        return responseJson
     }
 
-    override suspend fun createRoom(controller: ControllerInterface, userId: Int, passwordHash: String, room: Room) {
-        val createRoomRequest = CreateRoomRequest("", userID = userId, userPassword = passwordHash, room = room)
-        val responseJson = sendPost(createRoomRequest) as CreateRoomResponse
-        controller.onCreateRoomResult(responseJson.roomCreated, responseJson.roomID)
+    override suspend fun createRoom(userId: Int, passwordHash: String, room: Room): CreateRoomResponse? {
+        val createRoomRequest = CreateRoomRequest("", userId = userId, userPassword = passwordHash, room = room)
+        val responseJson = sendPost(createRoomRequest) as CreateRoomResponse?
+        return responseJson
     }
 
-    override suspend fun changeRoom(controller: ControllerInterface, userId: Int, passwordHash: String, newRoom: Room) {
-        val changeRoomRequest = ChangeRoomRequest("", userID = userId, userPassword = passwordHash, newRoom = newRoom)
-        val responseJson = sendPost(changeRoomRequest) as ChangeRoomResponse
-        controller.onChangeRoomResult(responseJson.roomChanged)
+    override suspend fun changeRoom(userId: Int, passwordHash: String, newRoom: Room): ChangeRoomResponse? {
+        val changeRoomRequest = ChangeRoomRequest("", userId = userId, userPassword = passwordHash, room = newRoom)
+        val responseJson = sendPost(changeRoomRequest) as ChangeRoomResponse?
+        return responseJson
     }
 
-    override suspend fun getRooms(controller: ControllerInterface, userID: Int, passwordHash: String) {
-        val getRoomsRequest = GetRoomsRequest("", userID = userID, userPassword = passwordHash)
-        val responseJson = sendPost(getRoomsRequest) as GetRoomsResponse
-        controller.onGetRoomsResult(responseJson.rooms)
+    override suspend fun getRooms(userID: Int, passwordHash: String): GetRoomsResponse? {
+        val getRoomsRequest = GetRoomsRequest("", userId = userID, userPassword = passwordHash)
+        val responseJson = sendPost(getRoomsRequest) as GetRoomsResponse?
+        return responseJson
     }
 
     override suspend fun searchRoom(
-        controller: ControllerInterface,
         usedID: Int,
         passwordHash: String,
         roomName: String
-    ) {
-        val searchRoomRequest = SearchRoomRequest("", userID = usedID, userPassword = passwordHash, roomName = roomName)
-        val responseJson = sendPost(searchRoomRequest) as SearchRoomResponse
-        controller.onSearchRoomResult(responseJson.rooms)
+    ): SearchRoomResponse? {
+        val searchRoomRequest = SearchRoomRequest("", userId = usedID, userPassword = passwordHash, roomName = roomName)
+        val responseJson = sendPost(searchRoomRequest) as SearchRoomResponse?
+        return responseJson
     }
 
     override suspend fun sendRequestToRoom(
-        controller: ControllerInterface,
         userId: Int,
         passwordHash: String,
         roomId: Int
-    ) {
+    ): SendRequestToRoomResponse? {
         val sendRequestToRoomRequest =
-            SendRequestToRoomRequest("", userID = userId, userPassword = passwordHash, roomID = roomId)
-        val responseJson = sendPost(sendRequestToRoomRequest) as SendRequestToRoomResponse
-        controller.onSendRequestToRoomResult(responseJson.requestSent)
+            SendRequestToRoomRequest("", userId = userId, userPassword = passwordHash, roomID = roomId)
+        val responseJson = sendPost(sendRequestToRoomRequest) as SendRequestToRoomResponse?
+        return responseJson
     }
 
     override suspend fun allUsersTurnedAlarmOff(
-        controller: ControllerInterface,
         userId: Int,
         passwordHash: String,
         roomId: Int,
         alarmId: Int
-    ) {
+    ): AllUsersTurnedOffAlarmResponse? {
         val allUsersTurnedOffAlarmRequest =
-            AllUsersTurnedOffAlarmRequest(userID = userId, roomID = roomId, address = "", userPassword = passwordHash)
-        val responseJson = sendPost(allUsersTurnedOffAlarmRequest) as AllUsersTurnedOffAlarmResponse
-        controller.onAllUserTurnedAlarmOffResult(responseJson.allUsersTurnedOff)
+            AllUsersTurnedOffAlarmRequest(userId = userId, roomID = roomId, address = "", userPassword = passwordHash)
+        val responseJson = sendPost(allUsersTurnedOffAlarmRequest) as AllUsersTurnedOffAlarmResponse?
+        return responseJson
     }
 
     override suspend fun turnOffAlarm(
-        controller: ControllerInterface,
         userId: Int,
         passwordHash: String,
         roomId: Int,
         alarmId: Int
-    ) {
-        val turnOffAlarmRequest = TurnOffAlarmRequest("", userID = userId, userPassword = passwordHash, roomID = roomId)
-        val responseJson = sendPost(turnOffAlarmRequest) as TurnOffAlarmResponse
-        controller.onTurnOffAlarmResult(responseJson.turnedOff)
+    ): TurnOffAlarmResponse? {
+        val turnOffAlarmRequest = TurnOffAlarmRequest("", userId = userId, userPassword = passwordHash, roomID = roomId)
+        val responseJson = sendPost(turnOffAlarmRequest) as TurnOffAlarmResponse?
+        return responseJson
     }
 
-    override suspend fun getRoom(controller: ControllerInterface, userId: Int, passwordHash: String, roomId: Int) {
-        val getRoomRequest = GetRoomReqest("", userID = userId, userPassword = passwordHash, roomID = roomId)
-        val responseJson = sendPost(getRoomRequest) as GetRoomResponse
-        controller.onGetRoomResult(responseJson.room)
+    override suspend fun getRoom(userId: Int, passwordHash: String, roomId: Int): GetRoomResponse? {
+        val getRoomRequest = GetRoomReqest("", userId = userId, userPassword = passwordHash, roomId = roomId)
+        val responseJson = sendPost(getRoomRequest) as GetRoomResponse? ?: return null
+        return responseJson
     }
 
-    private fun sendPost(request: RequestInterface): ResponseInterface {
+    private fun sendPost(request: RequestInterface): ResponseInterface? {
         val json = JSONObject(gsonForRequest.toJson(request).toString())
-        val r = post(ServerInterface.URL, json = json).text
-        return gsonForResponse.fromJson(r, ResponseInterface::class.java)
+        print("request " + json + "\n")
+        try {
+            val r = post(ServerInterface.URL, json = json).text
+            print("response " + r)//TODO
+            return gsonForResponse.fromJson(r, ResponseInterface::class.java)
+        } catch (e: ConnectException) {
+            return null
+        } catch (e: SocketTimeoutException) {
+            return null
+        } catch (e: SocketException) {
+            return null
+        }
+
     }
 
-
-    private val gsonForRequest: Gson by lazy {
+    private val gsonForRequest =
         GsonBuilder().registerTypeAdapter(RequestInterface::class.java, RequestAdapter()).create()
-    }
-
-    private val gsonForResponse: Gson by lazy {
-        GsonBuilder().registerTypeAdapter(Response::class.java, ResponseAdapter()).create()
-    }
+    private val gsonForResponse =
+        GsonBuilder().registerTypeAdapter(ResponseInterface::class.java, ResponseAdapter()).create()
 }

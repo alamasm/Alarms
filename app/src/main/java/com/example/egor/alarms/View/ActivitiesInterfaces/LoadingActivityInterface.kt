@@ -1,6 +1,6 @@
 package com.example.egor.alarms.View.ActivitiesInterfaces
 
-interface LoadingActivity : Activity {
+interface LoadingActivityInterface : ActivityInterface {
     fun startLoading()
     fun stopLoading()
 }

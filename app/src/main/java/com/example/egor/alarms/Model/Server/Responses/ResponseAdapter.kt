@@ -5,14 +5,14 @@ import Server.requests.*
 import com.google.gson.*
 import java.lang.reflect.Type
 
-class ResponseAdapter : JsonSerializer<RequestInterface>, JsonDeserializer<RequestInterface> {
-    override fun serialize(p0: RequestInterface?, p1: Type?, p2: JsonSerializationContext?): JsonElement {
+class ResponseAdapter : JsonSerializer<ResponseInterface>, JsonDeserializer<ResponseInterface> {
+    override fun serialize(p0: ResponseInterface?, p1: Type?, p2: JsonSerializationContext?): JsonElement {
         return JsonObject()
     }
 
-    override fun deserialize(p0: JsonElement?, p1: Type?, p2: JsonDeserializationContext?): RequestInterface {
+    override fun deserialize(p0: JsonElement?, p1: Type?, p2: JsonDeserializationContext?): ResponseInterface {
         val obj = p0?.asJsonObject
-        val requestType = obj?.get("requestType")!!.asInt
+        val requestType = obj?.get("responseType")!!.asInt
         when (requestType) {
             RequestTypes.LOGIN -> return p2!!.deserialize(p0, LoginResponse::class.java)
             RequestTypes.REGISTER -> return p2!!.deserialize(p0, RegisterResponse::class.java)
