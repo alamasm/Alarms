@@ -1,7 +1,6 @@
 package com.example.egor.alarms.Model.DB
 
 import Server.Room
-import Server.SimpleTime
 import Server.User
 import android.content.ContentValues
 import android.database.Cursor
@@ -107,7 +106,7 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
     private fun getContentValues(user: User): ContentValues {
         val cv = ContentValues()
         cv.put("id", user.userId)
-        cv.put("userName", user.username)
+        cv.put("userName", user.name)
         return cv
     }
 
@@ -172,7 +171,6 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
     }
     private fun getContentValues(alarm: Alarm): ContentValues {
         val cv = ContentValues()
-        cv.put("id", alarm.id)
         cv.put("name", alarm.name)
         cv.put("time_hours", alarm.time[0])
         cv.put("time_minutes", alarm.time[1])

@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar
 import android.view.View
+import android.view.WindowManager
 import android.widget.*
 import com.example.egor.alarms.Controller.ControllerSingleton
 import com.example.egor.alarms.Model.Server.Alarm
@@ -20,6 +21,9 @@ import kotlinx.android.synthetic.main.activity_room_view.*
 class RoomViewActivity : AppCompatActivity(), RoomViewActivityInterface {
     private lateinit var room: Room
     private var isAdmin = false
+    private var accepted = false
+    private lateinit var adapter: RoomViewPagerAdapter
+    private var adapterInited = false
 
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager
@@ -52,6 +56,11 @@ class RoomViewActivity : AppCompatActivity(), RoomViewActivityInterface {
                 currentPageId = p0
             }
         })
+        val window = window
+
+        //window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        //window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        //window.setStatusBarColor(getColor(R.color.statusbar_color));
     }
 
     override fun onStart() {
@@ -60,9 +69,15 @@ class RoomViewActivity : AppCompatActivity(), RoomViewActivityInterface {
     }
 
     private fun initTabs() {
-        val adapter = RoomViewPagerAdapter(supportFragmentManager, isAdmin, room)
-        viewPager.adapter = adapter
-        tabLayout.setupWithViewPager(viewPager)
+        if (!adapterInited) {
+            adapter = RoomViewPagerAdapter(supportFragmentManager, isAdmin, room)
+            viewPager.adapter = adapter
+            tabLayout.setupWithViewPager(viewPager)
+            adapterInited = true
+        } else {
+            adapter.updateRoom(room)
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun setToolbarTitle(title: String) {
@@ -91,6 +106,7 @@ class RoomViewActivity : AppCompatActivity(), RoomViewActivityInterface {
         val dialogView = inflater.inflate(R.layout.add_alarm_dialog, null)
         dialogBuilder.setView(dialogView)
         val timepicker = dialogView.findViewById<TimePicker>(R.id.add_alarm_timepicker)
+        timepicker.setIs24HourView(true)
         val roomName = dialogView.findViewById<EditText>(R.id.add_alarm_alarm_name)
         val buttons = getButtons(dialogView)
         dialogBuilder.setTitle("Create alarm")
@@ -147,5 +163,9 @@ class RoomViewActivity : AppCompatActivity(), RoomViewActivityInterface {
 
     override fun setAdmin(isAdmin: Boolean) {
         this.isAdmin = isAdmin
+    }
+
+    override fun setAccepted(accepted: Boolean) {
+        this.accepted = accepted
     }
 }

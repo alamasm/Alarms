@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 
-class RoomViewPagerAdapter(fm: FragmentManager, private val isAdmin: Boolean = false, private val room: Room) :
+class RoomViewPagerAdapter(fm: FragmentManager, private val isAdmin: Boolean = false, private var room: Room) :
     FragmentPagerAdapter(fm) {
     override fun getItem(p0: Int): Fragment? = when (p0) {
         0 -> RoomAlarmsFragment.newInstance(if (room.alarms != null) room.alarms else emptyList())
@@ -27,4 +27,18 @@ class RoomViewPagerAdapter(fm: FragmentManager, private val isAdmin: Boolean = f
         else 2
     }
 
+    override fun getItemPosition(obj: Any): Int {
+        if (obj is RoomAlarmsFragment) {
+            (obj as RoomAlarmsFragment).updateAlarms(room.alarms)
+        } else if (obj is RoomUsersFragment) {
+            (obj as RoomUsersFragment).updateUsers(room.users.toTypedArray())
+        } else if (obj is RoomUnapprovedUsersFragment) {
+            (obj as RoomUnapprovedUsersFragment).updateUnapprovedUsers(room.unapprovedUsers)
+        }
+        return super.getItemPosition(obj)
+    }
+
+    fun updateRoom(room: Room) {
+        this.room = room
+    }
 }

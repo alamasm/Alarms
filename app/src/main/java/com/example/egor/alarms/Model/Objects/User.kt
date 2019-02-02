@@ -3,14 +3,14 @@ package Server
 import android.os.Parcel
 import android.os.Parcelable
 
-data class User(val username: String, val userId: Int) : Parcelable {
+data class User(val name: String, val userId: Int) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readInt()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(username)
+        parcel.writeString(name)
         parcel.writeInt(userId)
     }
 

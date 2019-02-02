@@ -37,6 +37,5 @@ class RoomsAdapter(private var rooms: Array<Room>) : RecyclerView.Adapter<RoomsA
 
     fun updateData(rooms: Array<Room>) {
         this.rooms = rooms
-        notifyDataSetChanged()
     }
 }

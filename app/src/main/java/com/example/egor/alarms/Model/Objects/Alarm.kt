@@ -13,6 +13,10 @@ data class Alarm(var id: Int, var name: String, var time: Array<Int>, var days: 
     ) {
     }
 
+    fun getTimeString(): String {
+        return "${time[0]}:${time[1]}"
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeString(name)

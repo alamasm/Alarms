@@ -16,7 +16,7 @@ class UnapprovedUsersAdapter(private var users: Array<User>, private var message
         private lateinit var message: String
 
         fun bind(user: User, message: String) {
-            itemView.recycler_unapproved_user_item_userame_text_view.text = user.username
+            itemView.recycler_unapproved_user_item_userame_text_view.text = user.name
             itemView.recycler_unapproved_user_item_message_text_view.text = message
             this.user = user
             this.message = message
@@ -39,6 +39,5 @@ class UnapprovedUsersAdapter(private var users: Array<User>, private var message
     fun updateData(users: Array<User>, messages: Array<String>) {
         this.users = users
         this.messages = messages
-        notifyDataSetChanged()
     }
 }

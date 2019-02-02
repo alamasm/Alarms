@@ -65,7 +65,7 @@ class AndroidModel(
             return false
         }
         if (!res.roomCreated) return false
-        room.id = res.roomID
+        room.id = res.roomId
         db.saveRoom(room)
         return res.roomCreated
     }

@@ -13,7 +13,8 @@ class AlarmsAdapter(private var alarms: Array<Alarm>) : RecyclerView.Adapter<Ala
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private lateinit var alarm: Alarm
         fun bind(alarm: Alarm) {
-            itemView.recycler_alarm_item_time_text_view.text = alarm.time.toString()
+            itemView.recycler_view_alarm_name.text = alarm.name
+            itemView.recycler_alarm_item_time_text_view.text = alarm.getTimeString()
             this.alarm = alarm
         }
     }
@@ -33,6 +34,5 @@ class AlarmsAdapter(private var alarms: Array<Alarm>) : RecyclerView.Adapter<Ala
 
     fun updateData(alarms: Array<Alarm>) {
         this.alarms = alarms
-        notifyDataSetChanged()
     }
 }

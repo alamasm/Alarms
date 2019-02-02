@@ -60,10 +60,12 @@ class RoomsListFragment : Fragment() {
     fun stopLoading() {
         progressBar.visibility = ProgressBar.INVISIBLE
         recyclerView.visibility = RecyclerView.VISIBLE
+
     }
 
     private fun updateData(rooms: Array<Room>) {
         adapter.updateData(rooms)
+        adapter.notifyDataSetChanged()
     }
 
     // TODO: Rename method, update argument and hook method into UI event

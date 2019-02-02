@@ -13,7 +13,7 @@ class UsersAdapter(private var users: Array<User>) : RecyclerView.Adapter<UsersA
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private lateinit var user: User
         fun bind(user: User) {
-            itemView.recycler_user_item_userame_text_view.text = user.username
+            itemView.recycler_user_item_userame_text_view.text = user.name
             this.user = user
         }
     }
@@ -33,6 +33,5 @@ class UsersAdapter(private var users: Array<User>) : RecyclerView.Adapter<UsersA
 
     fun updateData(users: Array<User>) {
         this.users = users
-        notifyDataSetChanged()
     }
 }

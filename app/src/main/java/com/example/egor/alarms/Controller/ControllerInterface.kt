@@ -1,10 +1,7 @@
 package com.example.egor.alarms.Controller
 
 import com.example.egor.alarms.Model.Server.Alarm
-import com.example.egor.alarms.View.ActivitiesInterfaces.LoginActivityInterface
-import com.example.egor.alarms.View.ActivitiesInterfaces.MainActivityInterface
-import com.example.egor.alarms.View.ActivitiesInterfaces.RoomViewActivityInterface
-import com.example.egor.alarms.View.ActivitiesInterfaces.SearchRoomActivityInterface
+import com.example.egor.alarms.View.ActivitiesInterfaces.*
 
 interface ControllerInterface {
     fun onMainActivityStarted(mainActivity: MainActivityInterface)
@@ -28,4 +25,6 @@ interface ControllerInterface {
     fun onLoginActivityFinished()
 
     fun onInternetError()
+
+    fun updateUsers(usersFragmentInterface: UsersFragmentInterface)
 }

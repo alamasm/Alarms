@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.DefaultItemAnimator
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -39,7 +41,9 @@ class RoomAlarmsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = getView()!!.findViewById<RecyclerView>(R.id.room_alarms_recycler_view)
-        recyclerView.adapter = AlarmsAdapter(alarms)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.itemAnimator = DefaultItemAnimator()
+        recyclerView.adapter = adapter
     }
 
     fun updateAlarms(alarms: List<Alarm>) {
@@ -49,6 +53,7 @@ class RoomAlarmsFragment : Fragment() {
 
     private fun updateData(alarms: Array<Alarm>) {
         adapter.updateData(alarms)
+        adapter.notifyDataSetChanged()
     }
 
     // TODO: Rename method, update argument and hook method into UI event

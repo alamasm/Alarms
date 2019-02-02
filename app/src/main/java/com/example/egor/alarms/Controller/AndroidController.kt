@@ -6,7 +6,9 @@ import com.example.egor.alarms.Model.ModelInterface
 import com.example.egor.alarms.Model.Server.Alarm
 import com.example.egor.alarms.View.ActivitiesInterfaces.*
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import java.lang.Thread.sleep
 import java.net.ConnectException
 
 class AndroidController(
@@ -45,7 +47,7 @@ class AndroidController(
         val searchText = mainActivity.getSearchText()
         mainActivity.startLoading()
         launch {
-            val rooms = model.searchRoom(searchText)
+            val rooms = if (searchText != "") model.searchRoom(searchText) else model.getRooms(model.getUserID())
             launch(UI) {
                 mainActivity.stopLoading()
                 mainActivity.updateRooms(rooms)
@@ -72,7 +74,9 @@ class AndroidController(
         mainActivity.startLoading()
         launch {
             model.createRoom(Room(-1, roomName, model.getUserID(), emptyList(), emptyList(), emptyList()))
+            val rooms = model.getRooms(model.getUserID())
             launch(UI) {
+                mainActivity.updateRooms(rooms)
                 mainActivity.stopLoading()
             }
         }
@@ -84,6 +88,7 @@ class AndroidController(
             val currentRoom = model.getRoom(currentRoomId)
             launch(UI) {
                 if (currentRoom.adminId == model.getUserID()) roomViewActivity.setAdmin(true)
+                for (user in currentRoom.users) if (user.userId == model.getUserID()) roomViewActivity.setAccepted(true)
                 roomViewActivity.setRoom(currentRoom)
                 roomViewActivity.stopLoading()
             }
@@ -189,6 +194,15 @@ class AndroidController(
     override fun onInternetError() {
         launch(UI) {
             mainActivity.onInternetError()
+        }
+    }
+
+    override fun updateUsers(usersFragmentInterface: UsersFragmentInterface) {
+        launch {
+            delay(10000)
+            launch(UI) {
+                usersFragmentInterface.updateUsers(usersFragmentInterface.getUsers())
+            }
         }
     }
 }

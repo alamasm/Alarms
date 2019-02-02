@@ -156,8 +156,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun searchTextChanged() {
-        if (getSearchText() != "")
-            ControllerSingleton.instance.onMainActivitySearchTextChanged()
+        ControllerSingleton.instance.onMainActivitySearchTextChanged()
     }
 
     private fun initController() {

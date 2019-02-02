@@ -9,4 +9,5 @@ interface RoomViewActivityInterface : LoadingActivityInterface, ActivityInterfac
     fun setAdmin(isAdmin: Boolean)
     fun getPageId(): Int
     fun showAddAlarmDialog()
+    fun setAccepted(accepted: Boolean)
 }
