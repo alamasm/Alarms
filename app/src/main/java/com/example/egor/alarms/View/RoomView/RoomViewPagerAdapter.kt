@@ -5,11 +5,16 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 
-class RoomViewPagerAdapter(fm: FragmentManager, private val isAdmin: Boolean = false, private var room: Room) :
+class RoomViewPagerAdapter(
+    fm: FragmentManager,
+    private val isAdmin: Boolean = false,
+    private var room: Room,
+    private val accepted: Boolean
+) :
     FragmentPagerAdapter(fm) {
     override fun getItem(p0: Int): Fragment? = when (p0) {
-        0 -> RoomAlarmsFragment.newInstance(if (room.alarms != null) room.alarms else emptyList())
-        1 -> RoomUsersFragment.newInstance(if (room.users != null) room.users else emptyList())
+        0 -> RoomAlarmsFragment.newInstance(if (room.alarms != null) room.alarms else emptyList(), accepted)
+        1 -> RoomUsersFragment.newInstance(if (room.users != null) room.users else emptyList(), isAdmin)
         2 -> RoomUnapprovedUsersFragment.newInstance(if (room.unapprovedUsers != null) room.unapprovedUsers else emptyList())
         else -> null
     }
@@ -29,11 +34,11 @@ class RoomViewPagerAdapter(fm: FragmentManager, private val isAdmin: Boolean = f
 
     override fun getItemPosition(obj: Any): Int {
         if (obj is RoomAlarmsFragment) {
-            (obj as RoomAlarmsFragment).updateAlarms(room.alarms)
+            (obj as RoomAlarmsFragment).updateAlarms(if (room.alarms != null) room.alarms else emptyList())
         } else if (obj is RoomUsersFragment) {
-            (obj as RoomUsersFragment).updateUsers(room.users.toTypedArray())
+            (obj as RoomUsersFragment).updateUsers(if (room.users != null) room.users.toTypedArray() else emptyArray())
         } else if (obj is RoomUnapprovedUsersFragment) {
-            (obj as RoomUnapprovedUsersFragment).updateUnapprovedUsers(room.unapprovedUsers)
+            //(obj as RoomUnapprovedUsersFragment).updateUnapprovedUsers(if (room.unapprovedUsers != null) room.unapprovedUsers else emptyList())
         }
         return super.getItemPosition(obj)
     }

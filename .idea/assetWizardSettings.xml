@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/home/egor/apps/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_add_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/home/egor/apps/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_schedule_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="icon_add" />
+                            <entry key="outputName" value="fab_wating_request" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>
                         </option>

@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.*
 
 class RoomUsersFragment : Fragment(), UsersFragmentInterface {
     private lateinit var users: Array<User>
+    private var isAdmin = false
     private lateinit var adapter: UsersAdapter
 
     private var listener: OnFragmentInteractionListener? = null
@@ -28,7 +29,8 @@ class RoomUsersFragment : Fragment(), UsersFragmentInterface {
         super.onCreate(savedInstanceState)
         arguments?.let {
             users = it.getParcelableArray("users") as Array<User>
-            adapter = UsersAdapter(users)
+            isAdmin = it.getBoolean("is_admin")
+            adapter = UsersAdapter(users, isAdmin)
         }
     }
 
@@ -94,10 +96,11 @@ class RoomUsersFragment : Fragment(), UsersFragmentInterface {
 
     companion object {
         @JvmStatic
-        fun newInstance(users: List<User>) =
+        fun newInstance(users: List<User>, isAdmin: Boolean) =
             RoomUsersFragment().apply {
                 arguments = Bundle().apply {
                     putParcelableArray("users", users.toTypedArray())
+                    putBoolean("is_admin", isAdmin)
                 }
             }
     }

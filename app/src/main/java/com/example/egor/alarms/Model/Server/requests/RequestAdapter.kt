@@ -1,5 +1,6 @@
 package Server.requests
 
+import com.example.egor.alarms.Model.Server.requests.AcceptRequestToRoomRequest
 import com.example.egor.alarms.Model.Server.requests.GetRoomReqest
 import com.google.gson.*
 import java.lang.reflect.Type
@@ -22,6 +23,8 @@ class RequestAdapter: JsonSerializer<RequestInterface>, JsonDeserializer<Request
             RequestTypes.CREATE_ROOM -> return p2!!.deserialize(p0, CreateRoomRequest::class.java)
             RequestTypes.GET_ROOMS -> return p2!!.deserialize(p0, GetRoomsRequest::class.java)
             RequestTypes.GET_ROOM -> return p2!!.deserialize(p0, GetRoomReqest::class.java)
+            RequestTypes.REQUEST_TO_ROOM_SENT -> return p2!!.deserialize(p0, IsRequestToRoomSentRequest::class.java)
+            RequestTypes.ACCEPT_REQUEST_TO_ROOM -> return p2!!.deserialize(p0, AcceptRequestToRoomRequest::class.java)
         }
         return p2!!.deserialize(p0, RequestInterface::class.java)
     }

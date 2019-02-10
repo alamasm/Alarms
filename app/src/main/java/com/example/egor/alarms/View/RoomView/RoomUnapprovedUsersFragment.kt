@@ -18,7 +18,7 @@ class RoomUnapprovedUsersFragment : Fragment() {
     private lateinit var users: Array<User>
     private lateinit var messages: Array<String>
 
-    private lateinit var recyclerView: RecyclerView
+    //private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: UnapprovedUsersAdapter
 
     private var listener: OnFragmentInteractionListener? = null
@@ -41,10 +41,12 @@ class RoomUnapprovedUsersFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = getView()!!.findViewById<RecyclerView>(R.id.recycler_unapproved_users)
+        val recyclerView = getView()!!.findViewById<RecyclerView>(R.id.recycler_unapproved_users)
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.itemAnimator = DefaultItemAnimator()
         recyclerView.adapter = adapter
+        recyclerView.visibility = RecyclerView.VISIBLE
+        adapter.updateData(users, messages)
     }
 
     fun updateUnapprovedUsers(unapprovedUsers: List<Pair<User, String>>) {
@@ -61,6 +63,7 @@ class RoomUnapprovedUsersFragment : Fragment() {
 
     private fun updateData(users: Array<User>, messages: Array<String>) {
         adapter.updateData(users, messages)
+        adapter.notifyDataSetChanged()
     }
 
     // TODO: Rename method, update argument and hook method into UI event

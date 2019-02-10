@@ -8,7 +8,7 @@ import com.example.egor.alarms.View.ActivitiesInterfaces.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import java.lang.Thread.sleep
+import java.io.IOException
 import java.net.ConnectException
 
 class AndroidController(
@@ -18,6 +18,7 @@ class AndroidController(
 ) : ControllerInterface {
 
     private var currentRoomId: Int = 0
+    private var currentActivity: ActivityInterface = mainActivity
 
     override fun onMainActivityStarted(mainActivity: MainActivityInterface) {
         if (!model.logged()) mainActivity.startLoginActivity()
@@ -82,14 +83,34 @@ class AndroidController(
         }
     }
 
+    override fun onMainActivityLogoutClicked() {
+        mainActivity.startLoading()
+        launch {
+            model.logout()
+            launch(UI) {
+                mainActivity.stopLoading()
+                mainActivity.startLoginActivity()
+            }
+        }
+    }
+
     override fun onRoomViewActivityStarted(roomViewActivity: RoomViewActivityInterface) {
         roomViewActivity.startLoading()
+        currentActivity = roomViewActivity
         launch {
             val currentRoom = model.getRoom(currentRoomId)
+            roomViewActivity.setRoom(currentRoom)
+            var accepted = false
+            if (currentRoom.adminId == model.getUserID()) roomViewActivity.setAdmin(true)
+            for (user in currentRoom.users) if (user.id == model.getUserID()) {
+                roomViewActivity.setAccepted(true); accepted = true
+            }
+            if (!accepted) {
+                val sent = model.isRequestToRoomSent(roomViewActivity.getRoom().id)
+                roomViewActivity.setRequest(sent)
+            }
             launch(UI) {
-                if (currentRoom.adminId == model.getUserID()) roomViewActivity.setAdmin(true)
-                for (user in currentRoom.users) if (user.userId == model.getUserID()) roomViewActivity.setAccepted(true)
-                roomViewActivity.setRoom(currentRoom)
+                roomViewActivity.updateTabs()
                 roomViewActivity.stopLoading()
             }
         }
@@ -101,18 +122,26 @@ class AndroidController(
     }
 
     override fun onRoomViewActivitySendRequestClicked(roomViewActivity: RoomViewActivityInterface) {
+        roomViewActivity.startRequestDialog()
+    }
+
+    override fun onRoomViewActivitySendRequestOKClicked(roomViewActivity: RoomViewActivityInterface, message: String) {
         roomViewActivity.startLoading()
         launch {
-            val roomID = roomViewActivity.getRoom().id
-            val res = model.sendRequestToRoom(roomID)
+            val res = model.sendRequestToRoom(roomViewActivity.getRoom().id, message)
             launch(UI) {
+                if (res) {
+                    roomViewActivity.setRequest(true)
+                    roomViewActivity.updateTabs()
+                } else {
+                    roomViewActivity.onInternetError()
+                }
                 roomViewActivity.stopLoading()
-                roomViewActivity.requestToRoomSent(res)
             }
         }
     }
 
-    override fun onRoomViewActivityAddButtonClicked(roomViewActivity: RoomViewActivityInterface) {
+    override fun onRoomViewActivityAddAlarmButtonClicked(roomViewActivity: RoomViewActivityInterface) {
         when (roomViewActivity.getPageId()) {
             0 -> roomViewActivity.showAddAlarmDialog()
         }
@@ -133,7 +162,50 @@ class AndroidController(
             room = model.getRoom(room.id)//TODO
             launch(UI) {
                 roomViewActivity.setRoom(room)
+                roomViewActivity.updateTabs()
                 roomViewActivity.stopLoading()
+            }
+        }
+    }
+
+    override fun onRoomViewRemoveAlarmClicked(alarm: Alarm) {
+        (currentActivity as RoomViewActivityInterface).startLoading()
+        launch {
+            val room = (currentActivity as RoomViewActivityInterface).getRoom()
+            val alarms: MutableList<Alarm>
+            alarms = if (room.alarms == null) arrayListOf()
+            else room.alarms.toMutableList()
+            for (i in 0 until alarms.size) if (alarms[i].id == alarm.id) {
+                alarms.removeAt(i); break
+            }
+            room.alarms = alarms
+            model.changeRoom(room)
+            launch(UI) {
+                (currentActivity as RoomViewActivityInterface).setRoom(room)
+                (currentActivity as RoomViewActivityInterface).updateTabs()
+                (currentActivity as RoomViewActivityInterface).stopLoading()
+            }
+        }
+    }
+
+    override fun onRoomViewChangeAlarmClicked(alarm: Alarm) {
+        (currentActivity as RoomViewActivityInterface).showChangeAlarmDialog(alarm)
+    }
+
+    override fun onRoomViewChangeAlarmOKClicked(alarm: Alarm) {
+        (currentActivity as RoomViewActivityInterface).startLoading()
+        launch {
+            val room = (currentActivity as RoomViewActivityInterface).getRoom()
+            for (i in 0 until room.alarms.size) if (room.alarms[i].id == alarm.id) {
+                room.alarms[i].days = alarm.days
+                room.alarms[i].name = alarm.name
+                room.alarms[i].time = alarm.time
+            }
+            model.changeRoom(room)
+            launch(UI) {
+                (currentActivity as RoomViewActivityInterface).setRoom(room)
+                (currentActivity as RoomViewActivityInterface).updateTabs()
+                (currentActivity as RoomViewActivityInterface).stopLoading()
             }
         }
     }
@@ -143,11 +215,12 @@ class AndroidController(
     }
 
     override fun onLoginActivityStarted(loginActivity: LoginActivityInterface) {
-
+        currentActivity = loginActivity
     }
 
     override fun onLoginActivityLoginClicked(loginActivity: LoginActivityInterface) {
         loginActivity.startLoading()
+
         launch {
             val passwordHash = crypter.getHash(loginActivity.getPassword())
             try {
@@ -193,7 +266,7 @@ class AndroidController(
 
     override fun onInternetError() {
         launch(UI) {
-            mainActivity.onInternetError()
+            currentActivity.onInternetError()
         }
     }
 

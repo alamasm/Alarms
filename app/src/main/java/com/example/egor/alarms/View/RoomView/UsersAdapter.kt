@@ -8,7 +8,8 @@ import android.view.ViewGroup
 import com.example.egor.alarms.R
 import kotlinx.android.synthetic.main.recycler_view_user_item.view.*
 
-class UsersAdapter(private var users: Array<User>) : RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
+class UsersAdapter(private var users: Array<User>, private val isAdmin: Boolean) :
+    RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private lateinit var user: User

@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="statusbar_color">#005748</color>
+    <color name="alarm_day_background_color">#009987</color>
+    <color name="white">#FFFFFF</color>
 </resources>

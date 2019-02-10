@@ -58,11 +58,23 @@ class JSonServer: ServerInterface {
     override suspend fun sendRequestToRoom(
         userId: Int,
         passwordHash: String,
-        roomId: Int
+        roomId: Int,
+        message: String
     ): SendRequestToRoomResponse? {
         val sendRequestToRoomRequest =
-            SendRequestToRoomRequest("", userId = userId, userPassword = passwordHash, roomID = roomId)
+            SendRequestToRoomRequest("", userId = userId, userPassword = passwordHash, roomId = roomId, msg = message)
         val responseJson = sendPost(sendRequestToRoomRequest) as SendRequestToRoomResponse?
+        return responseJson
+    }
+
+    override suspend fun isRequestToRoomSent(
+        userId: Int,
+        passwordHash: String,
+        roomId: Int
+    ): IsRequestToRoomSentResponse? {
+        val isRequestToRoomSentRequest =
+            IsRequestToRoomSentRequest(userId = userId, userPassword = passwordHash, roomId = roomId, address = "")
+        val responseJson = sendPost(isRequestToRoomSentRequest) as IsRequestToRoomSentResponse
         return responseJson
     }
 

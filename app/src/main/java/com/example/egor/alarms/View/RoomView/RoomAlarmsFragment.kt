@@ -8,8 +8,10 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import com.example.egor.alarms.Controller.ControllerSingleton
 import com.example.egor.alarms.Model.Server.Alarm
 import com.example.egor.alarms.R
 
@@ -17,6 +19,7 @@ import com.example.egor.alarms.R
 class RoomAlarmsFragment : Fragment() {
 
     private lateinit var alarms: Array<Alarm>
+    private var accepted = false
 
     private var listener: OnFragmentInteractionListener? = null
 
@@ -27,7 +30,8 @@ class RoomAlarmsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             alarms = it.getParcelableArray("alarms") as Array<Alarm>
-            adapter = AlarmsAdapter(alarms)
+            accepted = it.getBoolean("sent")
+            adapter = AlarmsAdapter(alarms, context!!, accepted)
         }
     }
 
@@ -54,6 +58,14 @@ class RoomAlarmsFragment : Fragment() {
     private fun updateData(alarms: Array<Alarm>) {
         adapter.updateData(alarms)
         adapter.notifyDataSetChanged()
+    }
+
+    override fun onContextItemSelected(item: MenuItem?): Boolean {
+        when (item!!.itemId) {
+            RoomViewActivity.REMOVE_ALARM_CONTEXT -> ControllerSingleton.instance.onRoomViewRemoveAlarmClicked(adapter.currentLongClickAlarm)
+            RoomViewActivity.CHANGE_ALARM_CONTEXT -> ControllerSingleton.instance.onRoomViewChangeAlarmClicked(adapter.currentLongClickAlarm)
+        }
+        return true
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -93,10 +105,11 @@ class RoomAlarmsFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(alarms: List<Alarm>) =
+        fun newInstance(alarms: List<Alarm>, accepted: Boolean) =
             RoomAlarmsFragment().apply {
                 arguments = Bundle().apply {
                     putParcelableArray("alarms", alarms.toTypedArray())
+                    putBoolean("sent", accepted)
                 }
             }
     }

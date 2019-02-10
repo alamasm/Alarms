@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.egor.alarms.R
-import kotlinx.android.synthetic.main.recycler_view_unapproved_user_tem.view.*
+import kotlinx.android.synthetic.main.recycler_view_unapproved_user_item.view.*
 
 class UnapprovedUsersAdapter(private var users: Array<User>, private var messages: Array<String>) :
     RecyclerView.Adapter<UnapprovedUsersAdapter.ViewHolder>() {
@@ -24,7 +24,7 @@ class UnapprovedUsersAdapter(private var users: Array<User>, private var message
     }
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
-        val view = LayoutInflater.from(p0.context).inflate(R.layout.recycler_view_user_item, p0, false)
+        val view = LayoutInflater.from(p0.context).inflate(R.layout.recycler_view_unapproved_user_item, p0, false)
         return ViewHolder(view)
     }
 

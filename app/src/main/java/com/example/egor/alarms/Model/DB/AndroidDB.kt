@@ -87,7 +87,7 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
             DBHelper.USERS_TABLE_NAME,
             getContentValues(user),
             "id = ?",
-            listOf(user.userId.toString()).toTypedArray()
+            listOf(user.id.toString()).toTypedArray()
         )
     }
 
@@ -105,7 +105,7 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
 
     private fun getContentValues(user: User): ContentValues {
         val cv = ContentValues()
-        cv.put("id", user.userId)
+        cv.put("id", user.id)
         cv.put("userName", user.name)
         return cv
     }
@@ -119,7 +119,7 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
             DBHelper.USERS_TABLE_NAME,
             getContentValues(user),
             "id = ?",
-            listOf(user.first.userId.toString()).toTypedArray()
+            listOf(user.first.id.toString()).toTypedArray()
         )
     }
 
@@ -171,6 +171,7 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
     }
     private fun getContentValues(alarm: Alarm): ContentValues {
         val cv = ContentValues()
+        cv.put("id", alarm.id)
         cv.put("name", alarm.name)
         cv.put("time_hours", alarm.time[0])
         cv.put("time_minutes", alarm.time[1])
@@ -179,9 +180,9 @@ class AndroidDB(private val helper: SQLiteOpenHelper) : DBInterface {
 
     private fun getContentValues(room: Room): ContentValues {
         val usersIds = ArrayList<Int>()
-        for (user in room.users) usersIds.add(user.userId)
+        for (user in room.users) usersIds.add(user.id)
         val unapprovedUsersIds = ArrayList<Int>()
-        for (user in room.unapprovedUsers) unapprovedUsersIds.add(user.first.userId)
+        for (user in room.unapprovedUsers) unapprovedUsersIds.add(user.first.id)
         val userIdsString = getIDsAsString(usersIds)
         val unapprovedUsersIdsString = getIDsAsString(unapprovedUsersIds)
         val alarmsIds = ArrayList<Int>()

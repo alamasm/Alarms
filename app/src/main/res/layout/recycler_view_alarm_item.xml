@@ -29,19 +29,97 @@
                     android:textSize="30sp"
                     card_view:layout_constraintEnd_toEndOf="parent"
                     card_view:layout_constraintBottom_toBottomOf="parent"
-                    android:textStyle="bold"
                     android:textAllCaps="false"
                     card_view:layout_constraintTop_toTopOf="parent" android:layout_marginEnd="16dp"
-                    card_view:layout_constraintVertical_bias="0.526"/>
+                    card_view:layout_constraintVertical_bias="0.526" android:textStyle="bold"/>
             <TextView
                     android:text="Alarm Name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/recycler_view_alarm_name" card_view:layout_constraintStart_toStartOf="parent"
                     card_view:layout_constraintTop_toTopOf="parent" android:layout_marginStart="8dp"
-                    android:textSize="24sp" android:layout_marginTop="8dp"
+                    android:textSize="24sp"
                     android:layout_marginBottom="8dp" card_view:layout_constraintBottom_toBottomOf="parent"
-                    android:maxWidth="200dp"/>
+                    android:maxWidth="200dp" card_view:layout_constraintVertical_bias="0.0"/>
+            <TextView
+                    android:text="Mo"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/alarm_day_1"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    android:layout_marginTop="4dp" card_view:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="8dp"
+                    card_view:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
+                    android:textAlignment="center" android:gravity="center"
+                    android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color" android:textAllCaps="false"
+            />
+            <TextView
+                    android:text="Tu"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="8dp"
+                    card_view:layout_constraintStart_toEndOf="@+id/alarm_day_1" android:layout_marginTop="4dp"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    card_view:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
+                    android:gravity="center" android:id="@+id/alarm_day_2"
+                    android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color"/>
+            <TextView
+                    android:text="We"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/alarm_day_3" android:layout_marginStart="8dp"
+                    card_view:layout_constraintStart_toEndOf="@+id/alarm_day_2" android:layout_marginTop="4dp"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    card_view:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
+                    android:gravity="center" android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color"/>
+            <TextView
+                    android:text="Th"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/alarm_day_4" android:layout_marginTop="4dp"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    android:layout_marginStart="8dp" card_view:layout_constraintStart_toEndOf="@+id/alarm_day_3"
+                    card_view:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color"/>
+            <TextView
+                    android:text="Fr"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/alarm_day_5"
+                    android:layout_marginTop="4dp"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    card_view:layout_constraintStart_toEndOf="@+id/alarm_day_4" android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp" card_view:layout_constraintBottom_toBottomOf="parent"
+                    android:gravity="center" android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color"/>
+            <TextView
+                    android:text="Sa"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/alarm_day_6"
+                    android:layout_marginTop="4dp"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    android:layout_marginStart="8dp" card_view:layout_constraintStart_toEndOf="@+id/alarm_day_5"
+                    card_view:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color"/>
+            <TextView
+                    android:text="Su"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/alarm_day_7" card_view:layout_constraintStart_toEndOf="@+id/alarm_day_6"
+                    android:layout_marginStart="8dp" android:layout_marginTop="4dp"
+                    card_view:layout_constraintTop_toBottomOf="@+id/recycler_view_alarm_name"
+                    card_view:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:background="@drawable/alarm_view_day_background"
+                    android:backgroundTint="@color/alarm_day_background_color"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

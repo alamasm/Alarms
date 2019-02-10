@@ -1,5 +1,7 @@
 package com.example.egor.alarms.Model.Server.Responses
 
+import Server.Responses.IsRequestToRoomSentResponse
+import Server.Responses.ResponseInterface
 import Server.Room
 import Server.User
 import Server.requests.RequestAdapter
@@ -7,21 +9,13 @@ import Server.requests.RequestInterface
 import com.example.egor.alarms.Model.Server.Alarm
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import org.json.JSONObject
 
 fun main(args: Array<String>) {
-    val room = Room(
-        id = 1,
-        name = "room 1",
-        adminId = 1,
-        users = emptyList(),
-        unapprovedUsers = emptyList<Pair<User, String>>(),
-        alarms = emptyList<Alarm>()
-    )
-    val response = GetRoomResponse(room = room)
-    print(gsonForRequest.toJson(response).toString())
-
+    val response = IsRequestToRoomSentResponse(sent = true, roomId = 0)
+    val json = JSONObject(gsonForResponse.toJson(response).toString())
+    print(json)
 }
 
-private val gsonForRequest: Gson by lazy {
-    GsonBuilder().registerTypeAdapter(RequestInterface::class.java, RequestAdapter()).create()
-}
+private val gsonForResponse =
+    GsonBuilder().registerTypeAdapter(ResponseInterface::class.java, ResponseAdapter()).create()

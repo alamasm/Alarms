@@ -23,6 +23,8 @@ class ResponseAdapter : JsonSerializer<ResponseInterface>, JsonDeserializer<Resp
             RequestTypes.CREATE_ROOM -> return p2!!.deserialize(p0, CreateRoomResponse::class.java)
             RequestTypes.GET_ROOMS -> return p2!!.deserialize(p0, GetRoomsResponse::class.java)
             RequestTypes.GET_ROOM -> return p2!!.deserialize(p0, GetRoomResponse::class.java)
+            RequestTypes.REQUEST_TO_ROOM_SENT -> return p2!!.deserialize(p0, IsRequestToRoomSentResponse::class.java)
+            RequestTypes.ACCEPT_REQUEST_TO_ROOM -> return p2!!.deserialize(p0, AcceptRequestToRoomResponse::class.java)
         }
         return p2!!.deserialize(p0, ResponseInterface::class.java)
     }

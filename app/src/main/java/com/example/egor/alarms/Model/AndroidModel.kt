@@ -2,6 +2,7 @@ package com.example.egor.alarms.Model
 
 import Server.Room
 import Server.ServerInterface
+import android.preference.Preference
 import com.example.egor.alarms.Controller.ControllerSingleton
 import com.example.egor.alarms.Model.DB.DBInterface
 import com.example.pektu.lifecounter.Model.Preferences.Preferences
@@ -56,6 +57,13 @@ class AndroidModel(
             this.username = username
             res.userId
         } else -1
+    }
+
+    override suspend fun logout() {
+        prefs.saveBoolean(Preferences.LOGGED_TAG, false)
+        prefs.saveString(Preferences.USERNAME_TAG, Preferences.STRING_IN_PREFS_DEFAULT_VALUE)
+        prefs.saveInt(Preferences.USER_ID_TAG, Preferences.INT_IN_PREFS_DEFAULT_VALUE)
+        prefs.saveString(Preferences.PASSWORD_HASH_TAG, Preferences.STRING_IN_PREFS_DEFAULT_VALUE)
     }
 
     override suspend fun createRoom(room: Room): Boolean {
@@ -122,13 +130,22 @@ class AndroidModel(
         return res.rooms
     }
 
-    override suspend fun sendRequestToRoom(roomID: Int): Boolean {
-        val res = server.sendRequestToRoom(userID, passwordHash, roomID)
+    override suspend fun sendRequestToRoom(roomID: Int, message: String): Boolean {
+        val res = server.sendRequestToRoom(userID, passwordHash, roomID, message)
         if (res == null) {
             ControllerSingleton.instance.onInternetError()
             return false
         }
         return res.requestSent
+    }
+
+    override suspend fun isRequestToRoomSent(roomID: Int): Boolean {
+        val res = server.isRequestToRoomSent(userID, passwordHash, roomID)
+        if (res == null) {
+            ControllerSingleton.instance.onInternetError()
+            return false
+        }
+        return res.sent
     }
 
     override fun logged(): Boolean {

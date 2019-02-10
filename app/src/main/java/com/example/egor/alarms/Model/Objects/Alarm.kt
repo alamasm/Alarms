@@ -14,7 +14,13 @@ data class Alarm(var id: Int, var name: String, var time: Array<Int>, var days: 
     }
 
     fun getTimeString(): String {
-        return "${time[0]}:${time[1]}"
+        var hoursString = ""
+        if (time[0] < 10) hoursString += "0${time[0]}"
+        else hoursString += time[0]
+        var minutesString = ""
+        if (time[1] < 10) minutesString += "0${time[1]}"
+        else minutesString += time[1]
+        return "${hoursString}:${minutesString}"
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

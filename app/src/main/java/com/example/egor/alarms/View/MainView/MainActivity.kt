@@ -190,7 +190,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_settings -> return true
+            R.id.action_log_out -> {
+                ControllerSingleton.instance.onMainActivityLogoutClicked()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
